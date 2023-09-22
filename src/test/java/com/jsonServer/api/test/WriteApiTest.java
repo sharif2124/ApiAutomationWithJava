@@ -1,6 +1,7 @@
 package com.jsonServer.api.test;
 
 import com.thedeanda.lorem.LoremIpsum;
+import org.json.simple.JSONObject;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
@@ -67,5 +68,74 @@ public class WriteApiTest extends BaseTest{
                 .body("id",notNullValue());
 
 
+    }
+    @Test
+    public void createPostWithJsonShouldSuccess(){
+        String titleName = LoremIpsum.getInstance().getTitle(3);
+        String AuthorName = LoremIpsum.getInstance().getName();
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title",titleName);
+        jsonObject.put("author",AuthorName);
+
+        given()
+                .header("Content-Type","application/json")
+                .body(jsonObject)
+                .log().uri()
+                .log().body()
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue());
+    }
+    @Test
+    public void updatePostWithJsonShouldSuccess(){
+        String titleName = LoremIpsum.getInstance().getTitle(3);
+        String AuthorName = LoremIpsum.getInstance().getName();
+
+        HashMap<String,Object> jsHashMap = new HashMap<>();
+        jsHashMap.put("title",titleName );
+        jsHashMap.put("author",AuthorName);
+
+      int id =  given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap)
+                .log().uri()
+                .log().body()
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue())
+                .extract().jsonPath().getInt("id");
+
+        titleName = LoremIpsum.getInstance().getTitle(3);
+        AuthorName = LoremIpsum.getInstance().getName();
+
+        HashMap<String,Object> jsHashMap2 = new HashMap<>();
+        jsHashMap2.put("title",titleName );
+        jsHashMap2.put("author",AuthorName);
+
+        given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap2)
+                .log().uri()
+                .log().body()
+                .when()
+                .put("/posts/"+id)
+                .then()
+                .statusCode(200)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue())
+                .extract().jsonPath().getInt("id");
     }
 }
