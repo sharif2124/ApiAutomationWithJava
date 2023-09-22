@@ -6,6 +6,8 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class WriteApiTest extends BaseTest{
     @Test
@@ -41,5 +43,29 @@ public class WriteApiTest extends BaseTest{
                 .then()
                 .statusCode(201)
                 .log().body();
+    }
+    @Test
+    public void createPostWithHashmapAssertionShouldSuccess(){
+        String titleName = LoremIpsum.getInstance().getTitle(3);
+        String AuthorName = LoremIpsum.getInstance().getName();
+        HashMap<String,Object> jsHashMap = new HashMap<>();
+        jsHashMap.put("title",titleName );
+        jsHashMap.put("author",AuthorName);
+
+        given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap)
+                .log().uri()
+                .log().body()
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue());
+
+
     }
 }
