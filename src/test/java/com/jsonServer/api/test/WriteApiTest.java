@@ -93,7 +93,7 @@ public class WriteApiTest extends BaseTest{
                 .body("id",notNullValue());
     }
     @Test
-    public void updatePostWithJsonShouldSuccess(){
+    public void updatePostWithHashMapShouldSuccess(){
         String titleName = LoremIpsum.getInstance().getTitle(3);
         String AuthorName = LoremIpsum.getInstance().getName();
 
@@ -137,5 +137,88 @@ public class WriteApiTest extends BaseTest{
                 .body("author",equalTo(AuthorName))
                 .body("id",notNullValue())
                 .extract().jsonPath().getInt("id");
+    }
+    @Test
+    public void updateSingleFillPostWithHashMapShouldSuccess(){
+        String titleName = LoremIpsum.getInstance().getTitle(3);
+        String AuthorName = LoremIpsum.getInstance().getName();
+
+        HashMap<String,Object> jsHashMap = new HashMap<>();
+        jsHashMap.put("title",titleName );
+        jsHashMap.put("author",AuthorName);
+
+        int id =  given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap)
+                .log().uri()
+                .log().body()
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue())
+                .extract().jsonPath().getInt("id");
+
+
+        AuthorName = LoremIpsum.getInstance().getName();
+
+        HashMap<String,Object> jsHashMap3 = new HashMap<>();
+
+        jsHashMap3.put("author",AuthorName);
+
+        given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap3)
+                .log().uri()
+                .log().body()
+                .when()
+                .patch("/posts/"+id)
+                .then()
+                .statusCode(200)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue())
+                .extract().jsonPath().getInt("id");
+    }
+    @Test
+    public void deletePostShouldSuccess(){
+        String titleName = LoremIpsum.getInstance().getTitle(3);
+        String AuthorName = LoremIpsum.getInstance().getName();
+
+        HashMap<String,Object> jsHashMap4 = new HashMap<>();
+        jsHashMap4.put("title",titleName);
+        jsHashMap4.put("author",AuthorName);
+
+        int id =  given()
+                .header("Content-Type","application/json")
+                .body(jsHashMap4)
+                .log().uri()
+                .log().body()
+                .when()
+                .post("/posts")
+                .then()
+                .statusCode(201)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue())
+                .extract().jsonPath().getInt("id");
+
+        given()
+                .log().uri()
+                .when()
+                .delete("/posts/"+id)
+                .then()
+                .statusCode(200)
+                .log().body()
+                .body("title",equalTo(titleName))
+                .body("author",equalTo(AuthorName))
+                .body("id",notNullValue());
+
+
     }
 }
